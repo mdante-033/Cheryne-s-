@@ -41,6 +41,7 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
     
     <!-- FIX: Paths pointing to the public assets directory -->
     <link href="<?= e(url('/images/logo.png')) ?>" rel="icon" type="image/png">
+    <link rel="manifest" href="<?= e(url('/manifest.json')) ?>">
     <link href="<?= e(url('/assets/css/bootstrap-local.css')) ?>" rel="stylesheet">
     <link href="<?= e(url('/assets/css/style.css')) ?>" rel="stylesheet">
     <script>
