@@ -68,9 +68,12 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
                 <img src="<?= e(url('/images/logo.png')) ?>" alt="Cheryne's Hotel Logo" style="height:40px; width:auto; margin-right:8px; vertical-align:middle;">
                 <span>Cheryne's Hotel</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <div class="header-actions">
+                <a class="btn btn-outline-reservation" href="<?= e(url('/reservations')) ?>">Reservation</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
                     <li class="nav-item"><a class="nav-link" href="<?= e(url('/menu')) ?>">Menu</a></li>
