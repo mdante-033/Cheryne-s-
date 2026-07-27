@@ -24,14 +24,23 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
 </section>
 
 <!-- ===== HERO ===== -->
-<section class="hero hero--home" aria-label="Restaurant hero" style="background-image: linear-gradient(90deg, rgba(10, 23, 31, .82), rgba(10, 23, 31, .34)), url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1800&q=80');">
+<section class="hero hero--home hero--minimal" aria-label="Restaurant hero" style="background-image: url('https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1800&q=80');">
     <div class="hero-overlay" aria-hidden="true"></div>
-    <div class="container hero-inner">
+    <div class="container hero-frame">
+        <div class="hero-welcome-box">
+            <p class="hero-eyebrow">Welcome to</p>
+            <h1>Cheryne's Hotel</h1>
+        </div>
+    </div>
+</section>
+
+<section class="hero-cta-bar">
+    <div class="container hero-cta-inner">
         <p class="hero-subtitle">Fresh Kenyan meals, warm service, easy ordering, and table reservations from Cheryne's.</p>
         <div class="hero-actions">
             <a class="btn btn-primary" href="<?= e(url('/reservations')) ?>">Reserve a Table</a>
-            <a class="btn btn-outline-light" href="<?= e($whatsappLink) ?>" target="_blank" rel="noopener">Order via WhatsApp</a>
-            <a class="btn btn-outline-light" href="tel:0795879797" aria-label="Call Nyali Restaurant on 0795 879797">Call 0795 879797</a>
+            <a class="btn btn-outline-dark" href="<?= e($whatsappLink) ?>" target="_blank" rel="noopener">Order via WhatsApp</a>
+            <a class="btn btn-outline-dark" href="tel:0795879797" aria-label="Call Nyali Restaurant on 0795 879797">Call 0795 879797</a>
         </div>
     </div>
 </section>
