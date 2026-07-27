@@ -53,7 +53,7 @@ final class PaymentService
             $stripe,
             $order,
             $lineItems,
-            $successUrl,
+            $this->buildSuccessUrl($successUrl),
             $cancelUrl
         );
         
@@ -98,6 +98,11 @@ final class PaymentService
     {
         return $successUrl . (str_contains($successUrl, '?') ? '&' : '?') . 'demo=1';
     }
+
+    private function buildSuccessUrl(string $successUrl): string
+    {
+        return $successUrl . (str_contains($successUrl, '?') ? '&' : '?') . 'session_id={CHECKOUT_SESSION_ID}';
+    }
     
     /**
      * Prepare Stripe line items
@@ -136,33 +141,21 @@ final class PaymentService
         array $lineItems,
         string $successUrl,
         string $cancelUrl
-    ): \Stripe\Checkout\Session {
+    ) {
         $attempt = 0;
         $lastException = null;
         
         while ($attempt < self::MAX_RETRY_ATTEMPTS) {
             try {
-                return $stripe->checkout->sessions->create([
-                    'mode' => 'payment',
-                    'payment_method_types' => ['card'],
-                    'line_items' => $lineItems,
-                    'metadata' => [
-                        'order_id' => (string) $order['id'],
-                        'restaurant' => self::DEFAULT_RESTAURANT_NAME,
-                    ],
-                    'success_url' => $successUrl,
-                    'cancel_url' => $cancelUrl,
-                ]);
+                return $this->createCheckoutSession($stripe, $order, $lineItems, $successUrl, $cancelUrl);
             } catch (ApiErrorException $e) {
                 $lastException = $e;
                 $attempt++;
                 
-                // If not a rate limit error, throw exception immediately
                 if ($e->getHttpStatus() !== 429) {
                     throw $e;
                 }
                 
-                // Wait for a period before retrying
                 usleep(self::RETRY_DELAY_MS * 1000 * $attempt);
             }
         }
@@ -172,5 +165,25 @@ final class PaymentService
             0,
             $lastException
         );
+    }
+
+    private function createCheckoutSession(
+        \Stripe\StripeClient $stripe,
+        array $order,
+        array $lineItems,
+        string $successUrl,
+        string $cancelUrl
+    ) {
+        return $stripe->checkout->sessions->create([
+            'mode' => 'payment',
+            'payment_method_types' => ['card'],
+            'line_items' => $lineItems,
+            'metadata' => [
+                'order_id' => (string) $order['id'],
+                'restaurant' => self::DEFAULT_RESTAURANT_NAME,
+            ],
+            'success_url' => $successUrl,
+            'cancel_url' => $cancelUrl,
+        ]);
     }
 }

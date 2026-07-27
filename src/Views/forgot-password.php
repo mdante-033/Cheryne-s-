@@ -1,8 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use function App\Helpers\csrf_field;
 use function App\Helpers\e;
-use function App\Helpers\csrf_token;
 use function App\Helpers\url;
 
 /** @var array<string, string> $errors */
@@ -26,7 +26,7 @@ $oldEmail = $oldEmail ?? '';
         <form action="<?= e(url('/auth/forgot-password')) ?>" method="POST" style="margin-top: 1.5rem;">
             
             <!-- Essential Anti-Hijacking Security Baseline Token -->
-            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+            <?= csrf_field() ?>
 
             <!-- Email Input Field Group -->
             <div class="form-group mb-2" style="display: flex; flex-direction: column; gap: 0.5rem;">

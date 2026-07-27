@@ -68,7 +68,7 @@ final class AuthController
             'role' => $user['role'],
         ];
 
-        flash('success', 'Welcome back, ' . $user['name'] . '.');
+        flash('success', 'Welcome back.');
         redirect(($user['role'] ?? '') === 'admin' ? '/admin' : '/');
     }
 
@@ -85,6 +85,11 @@ final class AuthController
     public function register(): void
     {
         verify_csrf_or_fail();
+
+        if (!rate_limit('register', 5, 600)) {
+            flash('danger', 'Too many registration attempts. Please try again shortly.');
+            redirect('/auth/register');
+        }
 
         $name = clean_string(filter_input(INPUT_POST, 'name', FILTER_DEFAULT), 120);
         $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
@@ -117,7 +122,7 @@ final class AuthController
         }
 
         if (User::findByEmail((string) $email) !== null) {
-            $errors['general'] = 'An account already exists for that email.';
+            $errors['general'] = 'We could not create your account with the provided details. Please try again or contact support if you need help.';
             view('register', [
                 'title' => "Register - Cheryne's",
                 'errors' => $errors,
@@ -145,6 +150,30 @@ final class AuthController
         }
         session_destroy();
         redirect('/');
+    }
+
+    public function forgotPasswordForm(): void
+    {
+        view('forgot-password', ['title' => "Reset Password - Cheryne's", 'errors' => [], 'oldEmail' => '']);
+    }
+
+    public function forgotPassword(): void
+    {
+        verify_csrf_or_fail();
+        flash('info', 'Password reset isn’t available yet. Please contact us directly to reset your password.');
+        redirect('/auth/login');
+    }
+
+    public function resetPasswordForm(): void
+    {
+        view('reset-password', ['title' => "Reset Password - Cheryne's"]);
+    }
+
+    public function resetPassword(): void
+    {
+        verify_csrf_or_fail();
+        flash('info', 'Password reset isn’t available yet. Please contact us directly to reset your password.');
+        redirect('/auth/login');
     }
 
     private function strongPassword(string $password): bool

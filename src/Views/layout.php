@@ -105,7 +105,7 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
         <?php foreach (flashes() as $flash): ?>
             <div class="alert alert-<?= e($flash['type'] ?? 'info') ?> alert-dismissible fade show" role="alert">
                 <!-- FIX: Allows purposeful formatting within notifications while protecting fallbacks -->
-                <?= $flash['message'] ?? '' ?>
+                <?= e($flash['message'] ?? '') ?>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endforeach; ?>

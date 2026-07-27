@@ -54,6 +54,7 @@ final class HomeController
             'title' => "Contact Cheryne's",
             'description' => "Call Cheryne's on 0795 879797 or find us in Nyali, Mombasa.",
             'mapsKey' => $mapsKey,
+            'mapsLocation' => 'Nyali, Mombasa, Kenya',
         ]);
     }
 

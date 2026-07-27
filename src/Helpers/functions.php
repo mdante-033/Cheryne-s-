@@ -394,20 +394,30 @@ function is_admin(): bool
 
 function rate_limit(string $scope, int $limit, int $seconds): bool
 {
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'local';
-    $key = $scope . ':' . hash('sha256', $ip);
-    $now = time();
-    $_SESSION['rate_limits'][$key] = array_values(array_filter(
-        $_SESSION['rate_limits'][$key] ?? [],
-        static fn (int $timestamp): bool => ($now - $timestamp) < $seconds
-    ));
+    $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $scope = trim($scope);
 
-    if (count($_SESSION['rate_limits'][$key]) >= $limit) {
+    try {
+        $pdo = \App\Config\Database::connection();
+        $cutoff = date('Y-m-d H:i:s', time() - $seconds);
+        $pdo->prepare('DELETE FROM rate_limits WHERE created_at < :cutoff')->execute(['cutoff' => $cutoff]);
+
+        $stmt = $pdo->prepare('SELECT COUNT(*) FROM rate_limits WHERE scope = :scope AND ip = :ip AND created_at >= :cutoff');
+        $stmt->execute(['scope' => $scope, 'ip' => $ip, 'cutoff' => $cutoff]);
+
+        if ((int) $stmt->fetchColumn() >= $limit) {
+            return false;
+        }
+
+        $pdo->prepare('INSERT INTO rate_limits (scope, ip, created_at) VALUES (:scope, :ip, NOW())')->execute([
+            'scope' => $scope,
+            'ip' => $ip,
+        ]);
+
+        return true;
+    } catch (\Throwable) {
         return false;
     }
-
-    $_SESSION['rate_limits'][$key][] = $now;
-    return true;
 }
 
 function clean_string(?string $value, int $max = 255): string

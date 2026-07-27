@@ -51,6 +51,13 @@ use function App\Helpers\view;
 
 load_env(BASE_PATH . '/.env');
 date_default_timezone_set((string) env('APP_TIMEZONE', 'Africa/Nairobi'));
+
+$appDebug = filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN);
+$appEnv = strtolower((string) env('APP_ENV', 'production'));
+if ($appEnv === 'production' || $appEnv === 'prod') {
+    $appDebug = false;
+}
+
 start_secure_session();
 verify_session_integrity();
 send_secure_headers();
@@ -116,7 +123,7 @@ try {
 } catch (Throwable $throwable) {
     log_event('error', $throwable->getMessage(), ['exception' => get_class($throwable)]);
 
-    if (filter_var(env('APP_DEBUG', false), FILTER_VALIDATE_BOOLEAN)) {
+    if ($appDebug) {
         ob_clean();
         throw $throwable;
     }

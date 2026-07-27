@@ -19,11 +19,30 @@ use function App\Helpers\e;
         </div>
         <div class="map-panel">
             <?php if ($mapsKey !== ''): ?>
-                <iframe title="Cheryne's map" loading="lazy" allowfullscreen src="https://www.google.com/maps/embed/v1/place?key=<?= e($mapsKey) ?>&q=Nyali,Mombasa,Kenya"></iframe>
+                <div id="google-map" class="google-map" aria-label="Map showing Cheryne's Hotel location"></div>
+                <div class="map-actions">
+                    <a class="btn btn-sm btn-outline-dark" href="https://www.google.com/maps/dir/?api=1&destination=<?= urlencode($mapsLocation) ?>" target="_blank" rel="noopener">Get directions</a>
+                </div>
+                <script>
+                    window.initMap = function () {
+                        var position = { lat: -4.0446, lng: 39.6731 };
+                        var map = new google.maps.Map(document.getElementById('google-map'), {
+                            center: position,
+                            zoom: 15,
+                            gestureHandling: 'greedy',
+                        });
+                        new google.maps.Marker({
+                            position: position,
+                            map: map,
+                            title: "Cheryne's Hotel",
+                        });
+                    };
+                </script>
+                <script async defer src="https://maps.googleapis.com/maps/api/js?key=<?= e($mapsKey) ?>&callback=initMap"></script>
             <?php else: ?>
                 <div class="empty-state">
                     <h2>Map ready</h2>
-                    <p>Add GOOGLE_MAPS_API_KEY in .env to show the Google Maps embed.</p>
+                    <p>Add GOOGLE_MAPS_API_KEY in .env to show the Google Maps location map.</p>
                 </div>
             <?php endif; ?>
         </div>

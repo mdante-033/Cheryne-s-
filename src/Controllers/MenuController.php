@@ -10,7 +10,9 @@ use App\Services\WhatsAppService;
 use RuntimeException;
 
 use function App\Helpers\clean_string;
+use function App\Helpers\flash;
 use function App\Helpers\json_response;
+use function App\Helpers\rate_limit;
 use function App\Helpers\view;
 
 final class MenuController
@@ -21,9 +23,15 @@ final class MenuController
     public function index(): void
     {
         $filters = $this->extractFilters();
-        
-        $items = MenuItem::all($filters);
-        $categories = Category::all();
+        $items = [];
+        $categories = [];
+
+        try {
+            $items = MenuItem::all($filters);
+            $categories = Category::all();
+        } catch (\Throwable $exception) {
+            flash('danger', 'Unable to load the menu right now. Please try again later.');
+        }
 
         view('menu', [
             'title'       => "Cheryne's Menu",
@@ -39,6 +47,10 @@ final class MenuController
      */
     public function apiIndex(): void
     {
+        if (!rate_limit('api_menu', 60, 60)) {
+            json_response(['success' => false, 'error' => 'Too many requests.'], 429);
+        }
+
         json_response([
             'success' => true,
             'items'   => MenuItem::all($this->extractFilters())

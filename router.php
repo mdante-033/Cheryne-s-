@@ -11,12 +11,16 @@ if ($scriptDir !== '' && $scriptDir !== '/' && str_starts_with($uri, $scriptDir)
     $uri = substr($uri, strlen($scriptDir)) ?: '/';
 }
 
-// Check if the request is for a static file in the public directory
-$publicPath = __DIR__ . '/public' . $uri;
+// Resolve the public directory from the project root and normalize the path.
+$publicRoot = realpath(__DIR__ . '/public');
+$publicPath = null;
 
-// Serve static files directly (CSS, JS, images, etc.)
-if ($uri !== '/' && file_exists($publicPath) && is_file($publicPath)) {
-    // Let PHP's built-in server handle static files
+if ($uri !== '/' && $publicRoot !== false) {
+    $publicPath = $publicRoot . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $uri);
+}
+
+// Serve static files directly (CSS, JS, images, etc.) if they exist under public.
+if ($publicPath !== null && is_file($publicPath) && str_starts_with(realpath($publicPath), $publicRoot . DIRECTORY_SEPARATOR)) {
     return false;
 }
 

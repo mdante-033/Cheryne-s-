@@ -1,7 +1,7 @@
 <?php declare(strict_types=1);
 
+use function App\Helpers\csrf_field;
 use function App\Helpers\e;
-use function App\Helpers\csrf_token;
 use function App\Helpers\url;
 ?>
 
@@ -9,7 +9,7 @@ use function App\Helpers\url;
     <div class="bg-white p-3 border-bottom" style="border-radius:8px;">
         <h1 class="text-center mb-2">Create New Password</h1>
         <form action="<?=  e(url('/auth/reset-password')) ?>" method="POST">
-           <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+           <?= csrf_field() ?>
            <input type="hidden" name="token" value="<?= e($_GET['token'] ?? '') ?>">
 
            <div class="mb-2">
