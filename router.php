@@ -21,7 +21,26 @@ if ($uri !== '/' && $publicRoot !== false) {
 
 // Serve static files directly (CSS, JS, images, etc.) if they exist under public.
 if ($publicPath !== null && is_file($publicPath) && str_starts_with(realpath($publicPath), $publicRoot . DIRECTORY_SEPARATOR)) {
-    return false;
+    $extension = strtolower(pathinfo($publicPath, PATHINFO_EXTENSION));
+    $mimeTypes = [
+        'css' => 'text/css; charset=UTF-8',
+        'js' => 'application/javascript; charset=UTF-8',
+        'json' => 'application/json; charset=UTF-8',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'svg' => 'image/svg+xml',
+        'webp' => 'image/webp',
+        'ico' => 'image/x-icon',
+        'txt' => 'text/plain; charset=UTF-8',
+        'xml' => 'application/xml; charset=UTF-8',
+    ];
+
+    header('Content-Type: ' . ($mimeTypes[$extension] ?? 'application/octet-stream'));
+    header('Content-Length: ' . filesize($publicPath));
+    readfile($publicPath);
+    exit;
 }
 
 // For all other requests, route through index.php

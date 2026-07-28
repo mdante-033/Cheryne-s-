@@ -18,6 +18,7 @@ use function App\Helpers\clean_string;
 use function App\Helpers\current_user;
 use function App\Helpers\flash;
 use function App\Helpers\json_response;
+use function App\Helpers\rate_limit;
 use function App\Helpers\redirect;
 use function App\Helpers\valid_phone;
 use function App\Helpers\verify_csrf_or_fail;
@@ -30,6 +31,14 @@ final class OrderController
     public function addToCart(): void
     {
         verify_csrf_or_fail();
+        if (!rate_limit('cart_add', 30, 60)) {
+            if ($this->isAjax()) {
+                json_response(['ok' => false, 'error' => 'Too many requests.'], 429);
+            }
+            flash('danger', 'Too many cart updates. Please try again shortly.');
+            redirect('/menu');
+        }
+
         $itemId = filter_input(INPUT_POST, 'item_id', FILTER_VALIDATE_INT);
         $quantity = filter_input(INPUT_POST, 'quantity', FILTER_VALIDATE_INT, [
             'options' => ['min_range' => 1, 'max_range' => 20],
@@ -121,6 +130,11 @@ final class OrderController
     public function checkout(): void
     {
         verify_csrf_or_fail();
+        if (!rate_limit('checkout', 10, 60)) {
+            flash('danger', 'Too many checkout attempts. Please try again shortly.');
+            redirect('/checkout');
+        }
+
         $items = cart_items();
         if ($items === []) {
             flash('warning', 'Your cart is empty.');

@@ -1,20 +1,19 @@
 Options -Indexes
-php_flag engine off
-
-<FilesMatch "\.(php|phar|phtml|shtml)$">
-    Require all denied
-</FilesMatch>
 
 <IfModule mod_rewrite.c>
     RewriteEngine On
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^ (.*)$  index.php [QSA,L]
+    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
 <FilesMatch "\.(env|sql|md|json|lock|git|sh|bak|api)$">
     Require all denied
 </FilesMatch>
+
+<Files "router.php">
+    Require all denied
+</Files>
 
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"

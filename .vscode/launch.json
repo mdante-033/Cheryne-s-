@@ -23,7 +23,7 @@
                 "XDEBUG_CONFIG": "client_port=9003"
             },
             "pathMappings": {
-                "${workspaceFolder}": "${workspaceFolder}"
+                "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel": "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel"
             },
             "serverReadyAction": {
                 "pattern": "Development Server \\(http://localhost:3000\\) started",
@@ -37,7 +37,7 @@
             "request": "launch",
             "port": 9003,
             "pathMappings": {
-                "${workspaceFolder}": "${workspaceFolder}"
+                "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel": "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel"
             }
         },
         {
@@ -55,7 +55,7 @@
                 "XDEBUG_CONFIG": "client_port=9003"
             },
             "pathMappings": {
-                "${workspaceFolder}": "${workspaceFolder}"
+                "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel": "C:/Users/user/OneDrive/Desktop/Cheryne's Hotel"
             }
         }
     ]
