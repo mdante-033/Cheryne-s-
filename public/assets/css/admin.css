@@ -1,0 +1,176 @@
+/* Admin-only styling. Loaded exclusively on /admin/* routes by layout.php.
+   Relies on the CSS custom properties defined in style.css (--ink, --surface,
+   --line, etc.), so this file must always load AFTER style.css, never alone. */
+
+.admin-shell {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+}
+
+.admin-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+}
+
+.admin-sidebar {
+    position: sticky;
+    top: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--ink);
+    color: #fff;
+    padding: 1rem;
+    box-shadow: 0 8px 24px rgba(16, 24, 32, .08);
+}
+
+.admin-sidebar__brand {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.admin-sidebar__title {
+    font-weight: 900;
+    font-size: 1.05rem;
+}
+
+.admin-sidebar__subtitle {
+    color: rgba(255, 255, 255, .75);
+    font-weight: 650;
+    font-size: .9rem;
+}
+
+.admin-sidebar__nav {
+    display: grid;
+    gap: .35rem;
+    margin-bottom: 1rem;
+}
+
+.admin-sidebar__link {
+    display: block;
+    padding: .6rem .75rem;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, .92);
+    font-weight: 800;
+    border: 1px solid rgba(255, 255, 255, .1);
+    background: rgba(255, 255, 255, .03);
+}
+
+.admin-sidebar__link:hover,
+.admin-sidebar__link:focus {
+    color: #fff;
+    background: rgba(15, 118, 110, .22);
+    border-color: rgba(15, 118, 110, .35);
+    text-decoration: none;
+}
+
+.admin-sidebar__footer {
+    margin-top: auto;
+}
+
+.admin-main {
+    min-width: 0;
+}
+
+.admin-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: var(--surface);
+    color: var(--ink);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.admin-topbar__heading {
+    margin: .25rem 0 0;
+    font-weight: 900;
+    font-size: clamp(1.3rem, 3.5vw, 2rem);
+}
+
+.admin-panel__actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.admin-module-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.admin-module {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 1.1rem;
+}
+
+.admin-module h3 {
+    font-weight: 900;
+    font-size: 1.05rem;
+    margin-bottom: .35rem;
+}
+
+.admin-module__actions {
+    margin-top: .75rem;
+}
+
+@media (max-width: 991px) {
+    .admin-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+        position: static;
+    }
+
+    .admin-module-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.admin-tabs a {
+    padding: .45rem .75rem;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-weight: 750;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.metric {
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+}
+
+.metric span {
+    color: var(--muted);
+    font-weight: 700;
+}
+
+.metric strong {
+    display: block;
+    font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
