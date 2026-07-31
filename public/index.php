@@ -4,20 +4,11 @@ declare(strict_types=1);
 // Step out of public/ folder to get the true project root
 define('BASE_PATH', dirname(__DIR__));
 
-if (PHP_SAPI === 'cli-server') {
-    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-    $requestedFile = realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim(rawurldecode($requestPath), '/\\'));
-    $publicRoot = realpath(__DIR__);
-
-    if (
-        $requestedFile !== false
-        && $publicRoot !== false
-        && str_starts_with($requestedFile, $publicRoot . DIRECTORY_SEPARATOR)
-        && is_file($requestedFile)
-    ) {
-        return false;
-    }
-}
+// Static file serving is handled exclusively by router.php (the top-level
+// script passed to `php -S`). A duplicate check here would silently swallow
+// the response whenever this file is require'd, since `return false` only
+// tells the built-in server to serve a file when it happens at the true
+// top level - inside a require, it just ends execution with no output.
 
 ob_start();
 
