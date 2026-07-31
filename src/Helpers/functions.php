@@ -164,7 +164,11 @@ function app_url(string $path = ''): string
 function url(string $path = ''): string
 {
     $path = '/' . ltrim($path, '/');
-    return $path === '/' ? '/' : $path;
+    $scriptName = str_replace('\\', '/', (string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+    $scriptDir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+    $base = ($scriptDir === '' || $scriptDir === '.' || $scriptDir === '/') ? '' : $scriptDir;
+
+    return $path === '/' ? ($base === '' ? '/' : $base . '/') : $base . $path;
 }
 
 function redirect(string $path, int $status = 302): void
