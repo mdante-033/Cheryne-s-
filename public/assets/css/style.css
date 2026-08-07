@@ -554,6 +554,46 @@ img {
     grid-column: span 2;
 }
 
+.form-group {
+    display: grid;
+    gap: .35rem;
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.form-control {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: .65rem .75rem;
+    background: #fff;
+    color: var(--ink);
+    font: inherit;
+}
+
+.form-control:focus {
+    outline: 3px solid rgba(15, 118, 110, .2);
+    border-color: var(--teal);
+}
+
+.form-control.is-invalid {
+    border-color: var(--coral);
+}
+
+.form-control.is-invalid:focus {
+    outline-color: rgba(217, 93, 85, .25);
+}
+
+.invalid-feedback {
+    color: var(--coral);
+    font-size: .85rem;
+    margin-top: -.15rem;
+}
+
 label {
     display: grid;
     gap: .35rem;
