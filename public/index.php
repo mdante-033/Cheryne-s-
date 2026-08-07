@@ -4,6 +4,13 @@ declare(strict_types=1);
 // Step out of public/ folder to get the true project root
 define('BASE_PATH', dirname(__DIR__));
 
+// Hide raw PHP errors from visitors, but always log them - set this early,
+// before autoloading, so it also covers fatal errors during bootstrap itself
+// (the class of bug that causes a blank page with no explanation).
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+ini_set('error_log', BASE_PATH . '/logs/php_errors.log');
+
 // Static file serving is handled exclusively by router.php (the top-level
 // script passed to `php -S`). A duplicate check here would silently swallow
 // the response whenever this file is require'd, since `return false` only
