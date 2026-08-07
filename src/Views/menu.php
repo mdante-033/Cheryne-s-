@@ -50,6 +50,12 @@ use function App\Helpers\url;
     </div>
 
     <div class="container menu-grid" id="menu-results">
+        <?php if (empty($items)): ?>
+            <div class="empty-state">
+                <h2>No menu items found</h2>
+                <p>Try adjusting your filters, or call 0795 879797 to ask about today's menu.</p>
+            </div>
+        <?php endif; ?>
         <?php foreach ($items as $item): ?>
             <article class="menu-card">
                 <a href="<?= e(url('/menu/' . $item['id'])) ?>">
