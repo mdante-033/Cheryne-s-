@@ -561,6 +561,33 @@ label {
     font-weight: 700;
 }
 
+.form-group {
+    display: grid;
+    gap: .35rem;
+    margin-bottom: .85rem;
+}
+
+.form-group label {
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.form-control {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: .65rem .75rem;
+    background: #fff;
+    color: var(--ink);
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: 3px solid rgba(15, 118, 110, .2);
+    border-color: var(--teal);
+}
+
 input,
 select,
 textarea {

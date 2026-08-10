@@ -5,12 +5,6 @@
 // Get the requested URI
 $uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-// Remove any base path if present
-$scriptDir = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
-if ($scriptDir !== '' && $scriptDir !== '/' && str_starts_with($uri, $scriptDir)) {
-    $uri = substr($uri, strlen($scriptDir)) ?: '/';
-}
-
 // Resolve the public directory from the project root and normalize the path.
 $publicRoot = realpath(__DIR__ . '/public');
 $publicPath = null;

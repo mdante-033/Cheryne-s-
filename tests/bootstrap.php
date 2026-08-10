@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 define('BASE_PATH', dirname(__DIR__));
+define('SKIP_DB_TESTS', getenv('DB_PASS') === false || getenv('DB_PASS') === '');
 
 $vendor = BASE_PATH . '/vendor/autoload.php';
 if (is_file($vendor)) {
@@ -23,4 +24,3 @@ if (is_file($vendor)) {
 
 require_once BASE_PATH . '/src/Helpers/functions.php';
 \App\Helpers\load_env(BASE_PATH . '/.env');
-require_once BASE_PATH . '/config/database.php';

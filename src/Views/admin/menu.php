@@ -28,18 +28,19 @@ $items = $items ?? [];
                 <tbody>
                 <?php foreach ($categories as $category): ?>
                     <tr>
-                        <form action="<?= e(url('/admin/categories/' . $category['id'] . '/update')) ?>" method="post" class="status-form">
-                            <?= csrf_field() ?>
-                            <td><input type="text" name="name" value="<?= e($category['name']) ?>" required></td>
-                            <td><?= e($category['slug']) ?></td>
-                            <td style="display:flex; gap:.5rem;">
+                        <td><input type="text" name="name" value="<?= e($category['name']) ?>" required></td>
+                        <td><?= e($category['slug']) ?></td>
+                        <td style="display:flex; gap:.5rem;">
+                            <form action="<?= e(url('/admin/categories/' . $category['id'] . '/update')) ?>" method="post" class="status-form" style="flex: 0 0 auto;">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="name" value="<?= e($category['name']) ?>">
                                 <button class="btn btn-sm btn-outline-dark" type="submit">Save</button>
-                        </form>
-                        <form action="<?= e(url('/admin/categories/' . $category['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('Delete this category?');">
-                            <?= csrf_field() ?>
-                            <button class="btn btn-sm btn-link text-danger" type="submit">Delete</button>
-                        </form>
-                            </td>
+                            </form>
+                            <form action="<?= e(url('/admin/categories/' . $category['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('Delete this category?');" style="flex: 0 0 auto;">
+                                <?= csrf_field() ?>
+                                <button class="btn btn-sm btn-link text-danger" type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
@@ -61,27 +62,31 @@ $items = $items ?? [];
                 <tbody>
                 <?php foreach ($items as $item): ?>
                     <tr>
-                        <form action="<?= e(url('/admin/menu/' . $item['id'] . '/update')) ?>" method="post" class="status-form">
-                            <?= csrf_field() ?>
-                            <td><input type="text" name="name" value="<?= e($item['name']) ?>" required></td>
-                            <td>
-                                <select name="category_id">
-                                    <option value="">Uncategorized</option>
-                                    <?php foreach ($categories as $category): ?>
-                                        <option value="<?= e($category['id']) ?>" <?= ((int) ($item['category_id'] ?? 0) === (int) $category['id']) ? 'selected' : '' ?>><?= e($category['name']) ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td><input type="number" name="price" min="0" step="0.01" value="<?= e($item['price']) ?>" required></td>
-                            <td><input type="checkbox" name="is_available" value="1" <?= filter_var($item['is_available'], FILTER_VALIDATE_BOOLEAN) ? 'checked' : '' ?>></td>
-                            <td style="display:flex; gap:.5rem;">
+                        <td><input type="text" name="name" value="<?= e($item['name']) ?>" required></td>
+                        <td>
+                            <select name="category_id">
+                                <option value="">Uncategorized</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= e($category['id']) ?>" <?= ((int) ($item['category_id'] ?? 0) === (int) $category['id']) ? 'selected' : '' ?>><?= e($category['name']) ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </td>
+                        <td><input type="number" name="price" min="0" step="0.01" value="<?= e($item['price']) ?>" required></td>
+                        <td><input type="checkbox" name="is_available" value="1" <?= filter_var($item['is_available'], FILTER_VALIDATE_BOOLEAN) ? 'checked' : '' ?>></td>
+                        <td style="display:flex; gap:.5rem;">
+                            <form action="<?= e(url('/admin/menu/' . $item['id'] . '/update')) ?>" method="post" class="status-form" style="flex: 0 0 auto;">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="name" value="<?= e($item['name']) ?>">
+                                <input type="hidden" name="category_id" value="<?= e($item['category_id'] ?? '') ?>">
+                                <input type="hidden" name="price" value="<?= e($item['price']) ?>">
+                                <input type="hidden" name="is_available" value="<?= filter_var($item['is_available'], FILTER_VALIDATE_BOOLEAN) ? '1' : '0' ?>">
                                 <button class="btn btn-sm btn-outline-dark" type="submit">Save</button>
-                        </form>
-                        <form action="<?= e(url('/admin/menu/' . $item['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('Delete this item?');">
-                            <?= csrf_field() ?>
-                            <button class="btn btn-sm btn-link text-danger" type="submit">Delete</button>
-                        </form>
-                            </td>
+                            </form>
+                            <form action="<?= e(url('/admin/menu/' . $item['id'] . '/delete')) ?>" method="post" onsubmit="return confirm('Delete this item?');" style="flex: 0 0 auto;">
+                                <?= csrf_field() ?>
+                                <button class="btn btn-sm btn-link text-danger" type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

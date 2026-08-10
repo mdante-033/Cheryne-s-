@@ -4,21 +4,6 @@ declare(strict_types=1);
 // Step out of public/ folder to get the true project root
 define('BASE_PATH', dirname(__DIR__));
 
-if (PHP_SAPI === 'cli-server') {
-    $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-    $requestedFile = realpath(__DIR__ . DIRECTORY_SEPARATOR . ltrim(rawurldecode($requestPath), '/\\'));
-    $publicRoot = realpath(__DIR__);
-
-    if (
-        $requestedFile !== false
-        && $publicRoot !== false
-        && str_starts_with($requestedFile, $publicRoot . DIRECTORY_SEPARATOR)
-        && is_file($requestedFile)
-    ) {
-        return false;
-    }
-}
-
 ob_start();
 
 $vendor = BASE_PATH . '/vendor/autoload.php';
