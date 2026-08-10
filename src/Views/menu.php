@@ -59,38 +59,30 @@ $filters = $filters ?? [];
     </div>
 
     <div class="container menu-grid" id="menu-results">
-        <?php if (empty($items)): ?>
-            <div class="empty-state" style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
-                <h2>No items found</h2>
-                <p>Try adjusting your filters or browse all items.</p>
-                <a class="btn btn-primary" href="<?= e(url('/menu')) ?>">Clear filters</a>
-            </div>
-        <?php else: ?>
-            <?php foreach ($items as $item): ?>
-                <article class="menu-card">
-                    <a href="<?= e(url('/menu/' . $item['id'])) ?>">
-                        <img src="<?= e($item['image_url']) ?>" alt="<?= e($item['name']) ?>" loading="lazy">
-                    </a>
-                    <div class="menu-card-body">
-                        <span><?= e($item['category_name'] ?? 'Menu') ?></span>
-                        <h2><a href="<?= e(url('/menu/' . $item['id'])) ?>"><?= e($item['name']) ?></a></h2>
-                        <p><?= e($item['description']) ?></p>
-                        <div class="menu-card-actions">
-                            <strong><?= e(money($item['price'])) ?></strong>
-                            <?php if (filter_var($item['is_available'], FILTER_VALIDATE_BOOLEAN)): ?>
-                                <form action="<?= e(url('/cart/add')) ?>" method="post">
-                                    <?= csrf_field() ?>
-                                    <input type="hidden" name="item_id" value="<?= e($item['id']) ?>">
-                                    <input type="hidden" name="quantity" value="1">
-                                    <button class="btn btn-sm btn-primary" type="submit">Add</button>
-                                </form>
-                            <?php else: ?>
-                                <span class="status-pill">Unavailable</span>
-                            <?php endif; ?>
-                        </div>
+        <?php foreach ($items as $item): ?>
+            <article class="menu-card">
+                <a href="<?= e(url('/menu/' . $item['id'])) ?>">
+                    <img src="<?= e($item['image_url']) ?>" alt="<?= e($item['name']) ?>" loading="lazy">
+                </a>
+                <div class="menu-card-body">
+                    <span><?= e($item['category_name'] ?? 'Menu') ?></span>
+                    <h2><a href="<?= e(url('/menu/' . $item['id'])) ?>"><?= e($item['name']) ?></a></h2>
+                    <p><?= e($item['description']) ?></p>
+                    <div class="menu-card-actions">
+                        <strong><?= e(money($item['price'])) ?></strong>
+                        <?php if (filter_var($item['is_available'], FILTER_VALIDATE_BOOLEAN)): ?>
+                            <form action="<?= e(url('/cart/add')) ?>" method="post">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="item_id" value="<?= e($item['id']) ?>">
+                                <input type="hidden" name="quantity" value="1">
+                                <button class="btn btn-sm btn-primary" type="submit">Add</button>
+                            </form>
+                        <?php else: ?>
+                            <span class="status-pill">Unavailable</span>
+                        <?php endif; ?>
                     </div>
-                </article>
-            <?php endforeach; ?>
-        <?php endif; ?>
+                </div>
+            </article>
+        <?php endforeach; ?>
     </div>
 </section>
