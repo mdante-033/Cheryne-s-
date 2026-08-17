@@ -28,6 +28,7 @@ return [
         '/auth/register' => [AuthController::class, 'registerForm'],
         '/auth/forgot-password' => [AuthController::class, 'forgotPasswordForm'],
         '/auth/reset-password' => [AuthController::class, 'resetPasswordForm'],
+        '/auth/logout' => [AuthController::class, 'logout'],
         '/admin' => [AdminController::class, 'dashboard'],
         '/admin/menu' => [AdminController::class, 'menuManage'],
         '/admin/orders' => [AdminController::class, 'orders'],
