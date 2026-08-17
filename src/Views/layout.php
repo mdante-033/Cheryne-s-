@@ -90,7 +90,12 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
                         <?php if (is_admin()): ?>
                             <li class="nav-item"><a class="nav-link" href="<?= e(url('/admin')) ?>">Admin</a></li>
                         <?php endif; ?>
-                        <li class="nav-item"><a class="nav-link" href="<?= e(url('/auth/logout')) ?>">Logout</a></li>
+                            <li class="nav-item">
+                                <form action="<?= e(url('/auth/logout')) ?>" method="post" style="margin:0;">
+                                    <input type="hidden" name="_csrf" value="<?= e(csrf_token()) ?>">
+                                    <button type="submit" class="nav-link" style="background:none;border:0;cursor:pointer;font:inherit;padding:.5rem;">Logout</button>
+                                </form>
+                            </li>
                     <?php else: ?>
                         <li class="nav-item"><a class="nav-link" href="<?= e(url('/auth/login')) ?>">Login</a></li>
                     <?php endif; ?>
