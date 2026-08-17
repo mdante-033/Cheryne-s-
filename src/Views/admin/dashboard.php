@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use function App\Helpers\csrf_field;
 use function App\Helpers\e;
 use function App\Helpers\money;
 use function App\Helpers\url;
@@ -42,7 +43,10 @@ $reservations = $reservations ?? [];
             </nav>
 
             <div class="admin-sidebar__footer">
-                <a class="btn btn-sm btn-outline-light w-100" href="<?= e(url('/auth/logout')) ?>">Logout</a>
+                <form action="<?= e(url('/auth/logout')) ?>" method="post" style="margin:0;">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="btn btn-sm btn-outline-light w-100">Logout</button>
+                </form>
             </div>
         </aside>
 
