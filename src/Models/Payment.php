@@ -34,4 +34,23 @@ final class Payment
         );
         return $stmt->execute(['order_id' => $orderId, 'reference' => $providerReference]);
     }
+
+    public static function setProviderReference(int $orderId, string $providerReference): bool
+    {
+        $stmt = Database::connection()->prepare(
+            "UPDATE payments SET provider_reference = :reference WHERE order_id = :order_id AND provider = 'mpesa'"
+        );
+        return $stmt->execute(['order_id' => $orderId, 'reference' => $providerReference]);
+    }
+
+    public static function findOrderIdByProviderReference(string $providerReference): ?int
+    {
+        $stmt = Database::connection()->prepare(
+            'SELECT order_id FROM payments WHERE provider = \'mpesa\' AND provider_reference = :reference LIMIT 1'
+        );
+        $stmt->execute(['reference' => $providerReference]);
+        $orderId = $stmt->fetchColumn();
+
+        return $orderId === false ? null : (int) $orderId;
+    }
 }

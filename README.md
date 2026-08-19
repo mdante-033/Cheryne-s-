@@ -7,7 +7,7 @@ Generated pieces:
 - Vanilla PHP app with PSR-4 autoloading under `App\`.
 - PostgreSQL schema with constraints, indexes, triggers, logs table, and seed data.
 - Menu, cart, checkout, reservations, auth, admin dashboard, admin CRUD, and status management.
-- Stripe Checkout integration with a local demo fallback and an M-Pesa STK Push scaffold.
+- Stripe Checkout integration with a local demo fallback and an M-Pesa Daraja STK Push integration.
 - JSON-LD Restaurant schema, sitemap route, robots file, and Nyali, Mombasa SEO copy.
 - Docker, PHPUnit stubs, `.env.example`, Apache `.htaccess`, and deployment notes.
 
@@ -94,7 +94,10 @@ Stripe:
 M-Pesa:
 
 - Add Daraja sandbox credentials: `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY`, and `MPESA_CALLBACK_URL`.
-- `MpesaService` contains the STK Push scaffold and payload format. Connect it to Safaricom Daraja and validate callbacks before production.
+- Set `MPESA_SANDBOX=true` and use `https://sandbox.safaricom.co.ke` for `MPESA_BASE_URL` while testing. For production, set `MPESA_SANDBOX=false` and use `https://api.safaricom.co.ke`.
+- `MPESA_CALLBACK_URL` must be a public HTTPS URL ending in `/webhooks/mpesa`; Safaricom cannot reach `localhost`. A tunnel such as ngrok can expose a local development server.
+- The app requests a Daraja OAuth token, sends the STK prompt, stores the returned `CheckoutRequestID`, and confirms the order only when Safaricom posts a successful callback.
+- The Docker image installs PHP cURL, which is required for Daraja API requests.
 
 Do not store card numbers. Use Stripe Checkout tokens/sessions only.
 

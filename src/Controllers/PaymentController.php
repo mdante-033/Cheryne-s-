@@ -44,44 +44,21 @@ final class PaymentController
     {
         $payload = file_get_contents('php://input') ?: '';
         $decoded = json_decode($payload, true);
-        $signature = trim((string) ($_SERVER['HTTP_X_MPESA_SIGNATURE'] ?? $_POST['signature'] ?? ''));
-        $settings = (array) (config('payments')['mpesa'] ?? []);
-        $passkey = (string) ($settings['passkey'] ?? '');
-        $shortcode = (string) ($settings['shortcode'] ?? '');
-
-        if ($signature === '' || $passkey === '' || $shortcode === '') {
+        $callback = is_array($decoded) ? ($decoded['Body']['stkCallback'] ?? null) : null;
+        if (!is_array($callback)) {
             http_response_code(400);
-            json_response(['ok' => false, 'error' => 'Missing MPesa webhook verification data.']);
+            json_response(['ok' => false, 'error' => 'Invalid M-Pesa callback payload.']);
         }
 
-        $expected = hash_hmac('sha256', $payload . '|' . $shortcode . '|' . $passkey, $passkey);
-        if (!hash_equals($expected, $signature)) {
-            http_response_code(400);
-            json_response(['ok' => false, 'error' => 'Invalid MPesa signature.']);
-        }
+        $checkoutRequestId = trim((string) ($callback['CheckoutRequestID'] ?? ''));
+        $orderId = $checkoutRequestId === '' ? null : Payment::findOrderIdByProviderReference($checkoutRequestId);
 
-        $orderId = null;
-        if (is_array($decoded)) {
-            $orderId = (int) ($decoded['order_id'] ?? 0);
-            if ($orderId <= 0 && isset($decoded['Body']['stkCallback']['CallbackMetadata']['Item'])) {
-                foreach ($decoded['Body']['stkCallback']['CallbackMetadata']['Item'] as $item) {
-                    if (($item['Name'] ?? '') === 'AccountReference') {
-                        $accountReference = (string) ($item['Value'] ?? '');
-                        if (preg_match('/\b(\d+)\b/', $accountReference, $matches) === 1) {
-                            $orderId = (int) $matches[1];
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if ($orderId > 0) {
-            Payment::markPaid($orderId, 'MPESA-' . strtoupper(bin2hex(random_bytes(4))));
+        if (($callback['ResultCode'] ?? null) === 0 && $orderId !== null) {
+            Payment::markPaid($orderId, 'MPESA-' . $checkoutRequestId);
             Order::updateStatus($orderId, 'confirmed');
         }
 
-        json_response(['ok' => true]);
+        json_response(['ResultCode' => 0, 'ResultDesc' => 'Accepted']);
     }
 
     private function verifyStripePayment(int $orderId, string $sessionId): bool

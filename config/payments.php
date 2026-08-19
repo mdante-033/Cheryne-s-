@@ -14,5 +14,7 @@ return [
         'shortcode' => $env('MPESA_SHORTCODE', ''),
         'passkey' => $env('MPESA_PASSKEY', ''),
         'callback_url' => $env('MPESA_CALLBACK_URL', ''),
+        'sandbox' => filter_var($env('MPESA_SANDBOX', true), FILTER_VALIDATE_BOOLEAN),
+        'base_url' => $env('MPESA_BASE_URL', ''),
     ],
 ];

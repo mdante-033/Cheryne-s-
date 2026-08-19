@@ -189,6 +189,9 @@ final class OrderController
 
         if ($paymentMethod === 'mpesa') {
             $result = (new MpesaService())->initiateStkPush($phone, (float) $order['total_amount'], 'ORDER-' . $order['id'], "Cheryne's order");
+            if ($result['ok'] && !empty($result['reference'])) {
+                Payment::setProviderReference((int) $order['id'], (string) $result['reference']);
+            }
             flash($result['ok'] ? 'success' : 'warning', $result['message']);
             redirect('/payment/success?order_id=' . $order['id'] . '&mpesa=1');
         }
