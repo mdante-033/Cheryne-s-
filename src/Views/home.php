@@ -196,11 +196,11 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
                     body: new FormData(form),
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 });
-                const data = await response.json();
-                if (data.success) {
+                const data = await response.json().catch(() => ({}));
+                if (response.ok && data.ok === true) {
                     button.textContent = 'Added!';
                 } else {
-                    throw new Error(data.message || 'Failed to add item');
+                    throw new Error(data.error || data.message || 'Failed to add item');
                 }
             } catch (error) {
                 console.error('Error:', error);
