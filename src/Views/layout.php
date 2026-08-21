@@ -19,6 +19,9 @@ $appName = $app['name'] ?? "Cheryne's Hotel";
 $pageTitle = $title ?? $appName;
 $metaDescription = $description ?? "Cheryne's Hotel serves authentic local foods in Nyali, Mombasa. Call 0795 879797.";
 $structuredData = $structuredData ?? null;
+$canonicalUrl = app_url($_SERVER['REQUEST_URI'] ?? '/');
+$shareTitle = rawurlencode($pageTitle);
+$shareUrl = rawurlencode($canonicalUrl);
 
 $user = current_user();
 
@@ -37,7 +40,7 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
     <meta name="description" content="<?= e($metaDescription) ?>">
     <meta name="keywords" content="Authentic local foods Nyali Mombasa, Best local food Nyali, Nyali restaurant, Cheryne's Hotel">
     <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
-    <link rel="canonical" href="<?= e(app_url($_SERVER['REQUEST_URI'] ?? '/')) ?>">
+    <link rel="canonical" href="<?= e($canonicalUrl) ?>">
     
     <!-- FIX: Paths pointing to the public assets directory -->
     <link href="<?= e(url('/images/logo.png')) ?>" rel="icon" type="image/png">
@@ -124,14 +127,54 @@ if (class_exists(\App\Services\WhatsAppService::class)) {
 </main>
 
 <footer class="site-footer">
-    <div class="container footer-grid">
-        <div>
-            <strong>Cheryne's Hotel</strong>
-            <p>Authentic local foods in Nyali, Mombasa.</p>
+    <div class="container">
+        <div class="footer-cta">
+            <div>
+                <p class="footer-kicker">Come hungry, leave happy</p>
+                <h2>Make your next meal local.</h2>
+                <p>Order from the menu or reserve a table at <?= e($appName) ?>.</p>
+            </div>
+            <a class="footer-cta-button" href="<?= e(url('/menu')) ?>">Explore the menu <span aria-hidden="true">&rarr;</span></a>
         </div>
-        <div>
-            <a href="tel:0795879797" aria-label="Call Cheryne's Hotel on 0795 879797">0795 879797</a>
-            <a href="<?= e($whatsappLink) ?>" target="_blank" rel="noopener">WhatsApp order</a>
+
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a class="footer-logo" href="<?= e(url('/')) ?>" aria-label="<?= e($appName) ?> home">
+                    <img src="<?= e(url('/images/logo.png')) ?>" alt="" width="48" height="48">
+                    <span><?= e($appName) ?></span>
+                </a>
+                <p><?= e($metaDescription) ?></p>
+                <p class="footer-trust"><span aria-hidden="true">&#10003;</span> Local Kenyan cuisine in Nyali</p>
+            </div>
+
+            <nav class="footer-column" aria-labelledby="footer-nav-title">
+                <h2 id="footer-nav-title">Explore</h2>
+                <a href="<?= e(url('/menu')) ?>">Menu</a>
+                <a href="<?= e(url('/reservations')) ?>">Reservations</a>
+                <a href="<?= e(url('/contact')) ?>">Contact</a>
+                <a href="<?= e(url('/cart')) ?>">Your cart</a>
+            </nav>
+
+            <div class="footer-column" aria-labelledby="footer-contact-title">
+                <h2 id="footer-contact-title">Contact</h2>
+                <a href="tel:0795879797">0795 879797</a>
+                <a href="<?= e($whatsappLink) ?>" target="_blank" rel="noopener">Order on WhatsApp</a>
+                <span>Nyali, Mombasa, Kenya</span>
+                <a href="<?= e(url('/contact')) ?>">Get directions <span aria-hidden="true">&rarr;</span></a>
+            </div>
+
+            <div class="footer-column" aria-labelledby="footer-share-title">
+                <h2 id="footer-share-title">Stay connected</h2>
+                <a href="<?= e($whatsappLink) ?>" target="_blank" rel="noopener">WhatsApp</a>
+                <a href="https://www.facebook.com/sharer/sharer.php?u=<?= e($shareUrl) ?>" target="_blank" rel="noopener">Share on Facebook</a>
+                <a href="https://twitter.com/intent/tweet?url=<?= e($shareUrl) ?>&text=<?= e($shareTitle) ?>" target="_blank" rel="noopener">Share on X</a>
+                <span class="footer-note">Fresh updates and local food moments.</span>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <span>&copy; <?= date('Y') ?> <?= e($appName) ?>. All rights reserved.</span>
+            <span>Secure ordering and reservations</span>
         </div>
     </div>
 </footer>

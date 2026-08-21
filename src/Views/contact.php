@@ -1,6 +1,9 @@
 <?php
 
 use function App\Helpers\e;
+
+$mapsKey = (string) ($mapsKey ?? '');
+$mapsLocation = (string) ($mapsLocation ?? 'Nyali, Mombasa, Kenya');
 ?>
 <section class="page-head">
     <div class="container">
