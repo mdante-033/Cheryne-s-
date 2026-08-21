@@ -19,7 +19,7 @@
     top: 1rem;
     border: 1px solid var(--line);
     border-radius: 12px;
-    background: var(--ink);
+    background: #101820;
     color: #fff;
     padding: 1rem;
     box-shadow: 0 8px 24px rgba(16, 24, 32, .08);
@@ -147,7 +147,8 @@
     padding: .45rem .75rem;
     border: 1px solid var(--line);
     border-radius: 8px;
-    background: #fff;
+    background: var(--surface);
+    color: var(--ink);
     font-weight: 750;
 }
 
@@ -173,4 +174,27 @@
 .metric strong {
     display: block;
     font-size: clamp(1.7rem, 4vw, 2.5rem);
+}
+
+.inventory-low {
+    background: color-mix(in srgb, var(--coral) 10%, var(--surface));
+}
+
+.inventory-low td:first-child {
+    font-weight: 800;
+}
+
+.admin-panel .status-form {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.admin-panel .status-form input[type="number"] {
+    width: 6.5rem;
+}
+
+.admin-settings-form {
+    max-width: 680px;
 }

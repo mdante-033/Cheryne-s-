@@ -157,6 +157,7 @@
 .btn-outline-dark {
     color: var(--ink, #101820);
     border-color: var(--ink, #101820);
+    background: transparent;
 }
 
 .btn-outline-dark:hover,
@@ -174,27 +175,27 @@
 }
 
 .alert-info {
-    color: #055160;
-    background: #cff4fc;
-    border-color: #b6effb;
+    color: var(--alert-info-text, #055160);
+    background: var(--alert-info-bg, #cff4fc);
+    border-color: var(--alert-info-border, #b6effb);
 }
 
 .alert-success {
-    color: #0f5132;
-    background: #d1e7dd;
-    border-color: #badbcc;
+    color: var(--alert-success-text, #0f5132);
+    background: var(--alert-success-bg, #d1e7dd);
+    border-color: var(--alert-success-border, #badbcc);
 }
 
 .alert-warning {
-    color: #664d03;
-    background: #fff3cd;
-    border-color: #ffecb5;
+    color: var(--alert-warning-text, #664d03);
+    background: var(--alert-warning-bg, #fff3cd);
+    border-color: var(--alert-warning-border, #ffecb5);
 }
 
 .alert-danger {
-    color: #842029;
-    background: #f8d7da;
-    border-color: #f5c2c7;
+    color: var(--alert-danger-text, #842029);
+    background: var(--alert-danger-bg, #f8d7da);
+    border-color: var(--alert-danger-border, #f5c2c7);
 }
 
 .alert-dismissible {

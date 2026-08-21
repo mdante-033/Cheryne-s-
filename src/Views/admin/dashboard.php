@@ -36,10 +36,10 @@ $reservations = $reservations ?? [];
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/orders')) ?>">Orders</a>
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/reservations')) ?>">Reservations</a>
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/users')) ?>">Customers</a>
-                <span class="admin-sidebar__link" style="opacity:.5;cursor:not-allowed;" aria-disabled="true">Inventory</span>
-                <span class="admin-sidebar__link" style="opacity:.5;cursor:not-allowed;" aria-disabled="true">Suppliers</span>
-                <span class="admin-sidebar__link" style="opacity:.5;cursor:not-allowed;" aria-disabled="true">Reports</span>
-                <span class="admin-sidebar__link" style="opacity:.5;cursor:not-allowed;" aria-disabled="true">Settings</span>
+                <a class="admin-sidebar__link" href="<?= e(url('/admin/inventory')) ?>">Inventory</a>
+                <a class="admin-sidebar__link" href="<?= e(url('/admin/suppliers')) ?>">Suppliers</a>
+                <a class="admin-sidebar__link" href="<?= e(url('/admin/reports')) ?>">Reports</a>
+                <a class="admin-sidebar__link" href="<?= e(url('/admin/settings')) ?>">Settings</a>
             </nav>
 
             <div class="admin-sidebar__footer">
@@ -176,6 +176,13 @@ $reservations = $reservations ?? [];
                             <a class="btn btn-sm btn-primary" href="<?= e(url('/admin/orders')) ?>">Go to Orders</a>
                         </div>
                     </div>
+                    <?php foreach ([['Inventory', '/admin/inventory', 'Track stock levels and reorder points.'], ['Suppliers', '/admin/suppliers', 'Keep supplier contact details in one place.'], ['Reports', '/admin/reports', 'Review sales and item performance.'], ['Settings', '/admin/settings', 'Maintain the business preferences used by the team.']] as [$module, $path, $summary]): ?>
+                    <div class="admin-module" role="listitem">
+                        <h3><?= e($module) ?></h3>
+                        <p class="mb-2"><?= e($summary) ?></p>
+                        <div class="admin-module__actions"><a class="btn btn-sm btn-primary" href="<?= e(url($path)) ?>">Open <?= e($module) ?></a></div>
+                    </div>
+                    <?php endforeach; ?>
                 </div>
             </section>
         </div>

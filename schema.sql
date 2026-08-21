@@ -100,6 +100,30 @@ CREATE TABLE IF NOT EXISTS logs (
     created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS suppliers (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    phone VARCHAR(30),
+    email VARCHAR(160),
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS inventory (
+    id SERIAL PRIMARY KEY,
+    menu_item_id INTEGER NOT NULL UNIQUE REFERENCES menu_items(id) ON DELETE CASCADE,
+    supplier_id INTEGER REFERENCES suppliers(id) ON DELETE SET NULL,
+    stock_quantity INTEGER NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0),
+    reorder_level INTEGER NOT NULL DEFAULT 5 CHECK (reorder_level >= 0),
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS admin_settings (
+    setting_key VARCHAR(80) PRIMARY KEY,
+    setting_value VARCHAR(255) NOT NULL DEFAULT '',
+    updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_available ON menu_items(is_available);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
@@ -109,6 +133,7 @@ CREATE INDEX IF NOT EXISTS idx_payments_order ON payments(order_id);
 CREATE INDEX IF NOT EXISTS idx_rate_limits_scope_ip ON rate_limits(scope, ip, created_at);
 CREATE INDEX IF NOT EXISTS idx_logs_created_at ON logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_logs_level ON logs(level);
+CREATE INDEX IF NOT EXISTS idx_inventory_supplier ON inventory(supplier_id);
 
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$

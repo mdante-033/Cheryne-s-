@@ -34,6 +34,10 @@ return [
         '/admin/orders' => [AdminController::class, 'orders'],
         '/admin/users' => [AdminController::class, 'users'],
         '/admin/reservations' => [AdminController::class, 'reservations'],
+        '/admin/inventory' => [AdminController::class, 'inventory'],
+        '/admin/suppliers' => [AdminController::class, 'suppliers'],
+        '/admin/reports' => [AdminController::class, 'reports'],
+        '/admin/settings' => [AdminController::class, 'settings'],
     ],
     'POST' => [
         '/cart/add' => [OrderController::class, 'addToCart'],
@@ -55,5 +59,8 @@ return [
         '/admin/menu/{id}/delete' => [AdminController::class, 'deleteMenuItem'],
         '/admin/orders/{id}/status' => [AdminController::class, 'updateOrderStatus'],
         '/admin/reservations/{id}/status' => [AdminController::class, 'updateReservationStatus'],
+        '/admin/inventory/{id}/update' => [AdminController::class, 'updateInventory'],
+        '/admin/suppliers' => [AdminController::class, 'storeSupplier'],
+        '/admin/settings' => [AdminController::class, 'updateSettings'],
     ],
 ];

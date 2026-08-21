@@ -161,6 +161,104 @@ class AdminController
         ]);
     }
 
+    public function inventory(): void
+    {
+        $this->guardAdmin();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $items = $pdo->query(
+            "SELECT mi.id, mi.name, mi.price, mi.is_available,
+                    COALESCE(i.stock_quantity, 0) AS stock_quantity,
+                    COALESCE(i.reorder_level, 5) AS reorder_level,
+                    COALESCE(s.name, 'No supplier') AS supplier_name
+             FROM menu_items mi
+             LEFT JOIN inventory i ON i.menu_item_id = mi.id
+             LEFT JOIN suppliers s ON s.id = i.supplier_id
+             ORDER BY mi.name ASC"
+        )->fetchAll();
+        view('admin/inventory', ['title' => 'Inventory', 'items' => $items]);
+    }
+
+    public function suppliers(): void
+    {
+        $this->guardAdmin();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $suppliers = $pdo->query("SELECT id, name, phone, email, notes FROM suppliers ORDER BY name ASC")->fetchAll();
+        view('admin/suppliers', ['title' => 'Suppliers', 'suppliers' => $suppliers]);
+    }
+
+    public function reports(): void
+    {
+        $this->guardAdmin();
+        $pdo = Database::connection();
+        $reports = [
+            'orders' => $pdo->query("SELECT COUNT(*) AS count, COALESCE(SUM(total_amount), 0) AS revenue FROM orders WHERE created_at >= NOW() - INTERVAL '30 days'")->fetch(),
+            'statuses' => $pdo->query("SELECT status, COUNT(*) AS count FROM orders GROUP BY status ORDER BY count DESC")->fetchAll(),
+            'top_items' => $pdo->query("SELECT item_name, SUM(quantity) AS quantity, COALESCE(SUM(line_total), 0) AS revenue FROM order_items GROUP BY item_name ORDER BY quantity DESC LIMIT 10")->fetchAll(),
+        ];
+        view('admin/reports', ['title' => 'Reports', 'reports' => $reports]);
+    }
+
+    public function settings(): void
+    {
+        $this->guardAdmin();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $settings = $pdo->query("SELECT setting_key, setting_value FROM admin_settings ORDER BY setting_key ASC")->fetchAll();
+        view('admin/settings', ['title' => 'Settings', 'settings' => $settings]);
+    }
+
+    public function updateInventory(string $id): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $stock = filter_input(INPUT_POST, 'stock_quantity', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        $reorder = filter_input(INPUT_POST, 'reorder_level', FILTER_VALIDATE_INT, ['options' => ['min_range' => 0]]);
+        if ($stock === false || $reorder === false) {
+            flash('danger', 'Stock values must be zero or greater.');
+            redirect('/admin/inventory');
+        }
+        $stmt = $pdo->prepare("INSERT INTO inventory (menu_item_id, stock_quantity, reorder_level) VALUES (:id, :stock, :reorder) ON CONFLICT (menu_item_id) DO UPDATE SET stock_quantity = EXCLUDED.stock_quantity, reorder_level = EXCLUDED.reorder_level");
+        $stmt->execute(['id' => (int) $id, 'stock' => $stock, 'reorder' => $reorder]);
+        flash('success', 'Inventory updated.');
+        redirect('/admin/inventory');
+    }
+
+    public function storeSupplier(): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $name = clean_string(filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW), 120);
+        if ($name === '') {
+            flash('danger', 'Supplier name is required.');
+            redirect('/admin/suppliers');
+        }
+        $stmt = $pdo->prepare("INSERT INTO suppliers (name, phone, email, notes) VALUES (:name, :phone, :email, :notes)");
+        $stmt->execute(['name' => $name, 'phone' => clean_string((string) ($_POST['phone'] ?? ''), 30), 'email' => clean_string((string) ($_POST['email'] ?? ''), 160), 'notes' => clean_string((string) ($_POST['notes'] ?? ''), 500)]);
+        flash('success', 'Supplier added.');
+        redirect('/admin/suppliers');
+    }
+
+    public function updateSettings(): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $allowed = ['business_name', 'business_phone', 'business_location', 'low_stock_alerts'];
+        $stmt = $pdo->prepare("INSERT INTO admin_settings (setting_key, setting_value) VALUES (:key, :value) ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()");
+        foreach ($allowed as $key) {
+            $stmt->execute(['key' => $key, 'value' => clean_string((string) ($_POST[$key] ?? ''), 255)]);
+        }
+        flash('success', 'Settings saved.');
+        redirect('/admin/settings');
+    }
+
     public function storeCategory(): void
     {
         $this->guardAdmin();
@@ -290,6 +388,13 @@ class AdminController
         if (!is_admin()) {
             redirect('/auth/login');
         }
+    }
+
+    private function ensureAdminModuleTables(\PDO $pdo): void
+    {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS suppliers (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, phone VARCHAR(30), email VARCHAR(160), notes TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW())");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS inventory (id SERIAL PRIMARY KEY, menu_item_id INTEGER NOT NULL UNIQUE REFERENCES menu_items(id) ON DELETE CASCADE, supplier_id INTEGER REFERENCES suppliers(id) ON DELETE SET NULL, stock_quantity INTEGER NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0), reorder_level INTEGER NOT NULL DEFAULT 5 CHECK (reorder_level >= 0), updated_at TIMESTAMP NOT NULL DEFAULT NOW())");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS admin_settings (setting_key VARCHAR(80) PRIMARY KEY, setting_value VARCHAR(255) NOT NULL DEFAULT '', updated_at TIMESTAMP NOT NULL DEFAULT NOW())");
     }
 
     private function slugify(string $value): string
