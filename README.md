@@ -186,7 +186,7 @@ location ~ \.php$ {
 ## Next deployment steps
 
 - Replace placeholder food images with real Cheryne's photos.
-- Configure Stripe webhooks and Daraja callbacks.
+- Confiigure Stripe webhooks and Daraja callbacks.
 - Add production email/SMS alerts for failed payments and reservation changes.
 - Review CSP after final domains are known.
 # user
