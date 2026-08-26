@@ -209,6 +209,78 @@ class AdminController
         view('admin/settings', ['title' => 'Settings', 'settings' => $settings]);
     }
 
+    public function staff(): void
+    {
+        $this->guardAdmin();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $workers = $pdo->query("SELECT id, name, role, phone, pay_rate, active FROM staff ORDER BY active DESC, name ASC")->fetchAll();
+        $attendance = $pdo->query("SELECT a.work_date, s.name, a.status, a.notes FROM attendance a JOIN staff s ON s.id = a.staff_id ORDER BY a.work_date DESC, s.name ASC LIMIT 50")->fetchAll();
+        $payments = $pdo->query("SELECT p.paid_on, s.name, p.amount, p.period_start, p.period_end, p.method, p.reference FROM staff_payments p JOIN staff s ON s.id = p.staff_id ORDER BY p.paid_on DESC, p.id DESC LIMIT 50")->fetchAll();
+        view('admin/staff', ['title' => 'Staff, Attendance & Payroll', 'workers' => $workers, 'attendance' => $attendance, 'payments' => $payments]);
+    }
+
+    public function storeStaff(): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $name = clean_string(filter_input(INPUT_POST, 'name', FILTER_UNSAFE_RAW), 120);
+        $role = clean_string(filter_input(INPUT_POST, 'role', FILTER_UNSAFE_RAW), 80);
+        $phone = clean_string(filter_input(INPUT_POST, 'phone', FILTER_UNSAFE_RAW), 30);
+        $payRate = filter_input(INPUT_POST, 'pay_rate', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0]]);
+        if ($name === '' || $role === '' || $payRate === false || $payRate === null) {
+            flash('danger', 'Worker name, role, and a valid pay rate are required.');
+            redirect('/admin/staff');
+        }
+        $stmt = $pdo->prepare("INSERT INTO staff (name, role, phone, pay_rate) VALUES (:name, :role, :phone, :pay_rate)");
+        $stmt->execute(['name' => $name, 'role' => $role, 'phone' => $phone, 'pay_rate' => $payRate]);
+        flash('success', 'Worker added.');
+        redirect('/admin/staff');
+    }
+
+    public function storeAttendance(): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $staffId = filter_input(INPUT_POST, 'staff_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $workDate = trim((string) ($_POST['work_date'] ?? ''));
+        $status = trim((string) ($_POST['status'] ?? ''));
+        if ($staffId === false || $workDate === '' || !in_array($status, ['present', 'absent', 'leave'], true)) {
+            flash('danger', 'Please provide a worker, date, and valid attendance status.');
+            redirect('/admin/staff');
+        }
+        $stmt = $pdo->prepare("INSERT INTO attendance (staff_id, work_date, status, notes) VALUES (:staff_id, :work_date, :status, :notes) ON CONFLICT (staff_id, work_date) DO UPDATE SET status = EXCLUDED.status, notes = EXCLUDED.notes");
+        $stmt->execute(['staff_id' => $staffId, 'work_date' => $workDate, 'status' => $status, 'notes' => clean_string((string) ($_POST['notes'] ?? ''), 500)]);
+        flash('success', 'Attendance saved.');
+        redirect('/admin/staff');
+    }
+
+    public function storeStaffPayment(): void
+    {
+        $this->guardAdmin();
+        verify_csrf_or_fail();
+        $pdo = Database::connection();
+        $this->ensureAdminModuleTables($pdo);
+        $staffId = filter_input(INPUT_POST, 'staff_id', FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        $amount = filter_input(INPUT_POST, 'amount', FILTER_VALIDATE_FLOAT, ['options' => ['min_range' => 0.01]]);
+        $paidOn = trim((string) ($_POST['paid_on'] ?? ''));
+        $periodStart = trim((string) ($_POST['period_start'] ?? ''));
+        $periodEnd = trim((string) ($_POST['period_end'] ?? ''));
+        $method = trim((string) ($_POST['method'] ?? ''));
+        if ($staffId === false || $amount === false || $paidOn === '' || $periodStart === '' || $periodEnd === '' || !in_array($method, ['cash', 'mpesa', 'bank'], true)) {
+            flash('danger', 'Please provide complete and valid payment details.');
+            redirect('/admin/staff');
+        }
+        $stmt = $pdo->prepare("INSERT INTO staff_payments (staff_id, amount, paid_on, period_start, period_end, method, reference, notes) VALUES (:staff_id, :amount, :paid_on, :period_start, :period_end, :method, :reference, :notes)");
+        $stmt->execute(['staff_id' => $staffId, 'amount' => $amount, 'paid_on' => $paidOn, 'period_start' => $periodStart, 'period_end' => $periodEnd, 'method' => $method, 'reference' => clean_string((string) ($_POST['reference'] ?? ''), 160), 'notes' => clean_string((string) ($_POST['notes'] ?? ''), 500)]);
+        flash('success', 'Worker payment recorded. Verify the transfer separately with the payment provider.');
+        redirect('/admin/staff');
+    }
+
     public function updateInventory(string $id): void
     {
         $this->guardAdmin();
@@ -395,6 +467,9 @@ class AdminController
         $pdo->exec("CREATE TABLE IF NOT EXISTS suppliers (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, phone VARCHAR(30), email VARCHAR(160), notes TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW())");
         $pdo->exec("CREATE TABLE IF NOT EXISTS inventory (id SERIAL PRIMARY KEY, menu_item_id INTEGER NOT NULL UNIQUE REFERENCES menu_items(id) ON DELETE CASCADE, supplier_id INTEGER REFERENCES suppliers(id) ON DELETE SET NULL, stock_quantity INTEGER NOT NULL DEFAULT 0 CHECK (stock_quantity >= 0), reorder_level INTEGER NOT NULL DEFAULT 5 CHECK (reorder_level >= 0), updated_at TIMESTAMP NOT NULL DEFAULT NOW())");
         $pdo->exec("CREATE TABLE IF NOT EXISTS admin_settings (setting_key VARCHAR(80) PRIMARY KEY, setting_value VARCHAR(255) NOT NULL DEFAULT '', updated_at TIMESTAMP NOT NULL DEFAULT NOW())");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS staff (id SERIAL PRIMARY KEY, name VARCHAR(120) NOT NULL, role VARCHAR(80) NOT NULL, phone VARCHAR(30), pay_rate NUMERIC(10, 2) NOT NULL CHECK (pay_rate >= 0), active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMP NOT NULL DEFAULT NOW())");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS attendance (id SERIAL PRIMARY KEY, staff_id INTEGER NOT NULL REFERENCES staff(id) ON DELETE CASCADE, work_date DATE NOT NULL, status VARCHAR(20) NOT NULL CHECK (status IN ('present', 'absent', 'leave')), notes TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW(), UNIQUE (staff_id, work_date))");
+        $pdo->exec("CREATE TABLE IF NOT EXISTS staff_payments (id SERIAL PRIMARY KEY, staff_id INTEGER NOT NULL REFERENCES staff(id) ON DELETE RESTRICT, amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0), paid_on DATE NOT NULL, period_start DATE NOT NULL, period_end DATE NOT NULL, method VARCHAR(20) NOT NULL CHECK (method IN ('cash', 'mpesa', 'bank')), reference VARCHAR(160), notes TEXT, created_at TIMESTAMP NOT NULL DEFAULT NOW())");
     }
 
     private function slugify(string $value): string

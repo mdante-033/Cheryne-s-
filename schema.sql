@@ -124,6 +124,39 @@ CREATE TABLE IF NOT EXISTS admin_settings (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS staff (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(120) NOT NULL,
+    role VARCHAR(80) NOT NULL,
+    phone VARCHAR(30),
+    pay_rate NUMERIC(10, 2) NOT NULL CHECK (pay_rate >= 0),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS attendance (
+    id SERIAL PRIMARY KEY,
+    staff_id INTEGER NOT NULL REFERENCES staff(id) ON DELETE CASCADE,
+    work_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL CHECK (status IN ('present', 'absent', 'leave')),
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    UNIQUE (staff_id, work_date)
+);
+
+CREATE TABLE IF NOT EXISTS staff_payments (
+    id SERIAL PRIMARY KEY,
+    staff_id INTEGER NOT NULL REFERENCES staff(id) ON DELETE RESTRICT,
+    amount NUMERIC(10, 2) NOT NULL CHECK (amount > 0),
+    paid_on DATE NOT NULL,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    method VARCHAR(20) NOT NULL CHECK (method IN ('cash', 'mpesa', 'bank')),
+    reference VARCHAR(160),
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_menu_items_category ON menu_items(category_id);
 CREATE INDEX IF NOT EXISTS idx_menu_items_available ON menu_items(is_available);
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
@@ -134,6 +167,8 @@ CREATE INDEX IF NOT EXISTS idx_rate_limits_scope_ip ON rate_limits(scope, ip, cr
 CREATE INDEX IF NOT EXISTS idx_logs_created_at ON logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_logs_level ON logs(level);
 CREATE INDEX IF NOT EXISTS idx_inventory_supplier ON inventory(supplier_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(work_date);
+CREATE INDEX IF NOT EXISTS idx_staff_payments_paid_on ON staff_payments(paid_on);
 
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$

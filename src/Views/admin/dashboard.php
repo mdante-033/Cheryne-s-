@@ -40,6 +40,7 @@ $reservations = $reservations ?? [];
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/suppliers')) ?>">Suppliers</a>
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/reports')) ?>">Reports</a>
                 <a class="admin-sidebar__link" href="<?= e(url('/admin/settings')) ?>">Settings</a>
+                <a class="admin-sidebar__link" href="<?= e(url('/admin/staff')) ?>">Staff & Payroll</a>
             </nav>
 
             <div class="admin-sidebar__footer">
@@ -176,7 +177,7 @@ $reservations = $reservations ?? [];
                             <a class="btn btn-sm btn-primary" href="<?= e(url('/admin/orders')) ?>">Go to Orders</a>
                         </div>
                     </div>
-                    <?php foreach ([['Inventory', '/admin/inventory', 'Track stock levels and reorder points.'], ['Suppliers', '/admin/suppliers', 'Keep supplier contact details in one place.'], ['Reports', '/admin/reports', 'Review sales and item performance.'], ['Settings', '/admin/settings', 'Maintain the business preferences used by the team.']] as [$module, $path, $summary]): ?>
+                    <?php foreach ([['Inventory', '/admin/inventory', 'Track stock levels and reorder points.'], ['Suppliers', '/admin/suppliers', 'Keep supplier contact details in one place.'], ['Reports', '/admin/reports', 'Review sales and item performance.'], ['Settings', '/admin/settings', 'Maintain the business preferences used by the team.'], ['Staff & Payroll', '/admin/staff', 'Manage workers, attendance, and payment records.']] as [$module, $path, $summary]): ?>
                     <div class="admin-module" role="listitem">
                         <h3><?= e($module) ?></h3>
                         <p class="mb-2"><?= e($summary) ?></p>

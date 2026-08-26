@@ -38,6 +38,7 @@ return [
         '/admin/suppliers' => [AdminController::class, 'suppliers'],
         '/admin/reports' => [AdminController::class, 'reports'],
         '/admin/settings' => [AdminController::class, 'settings'],
+        '/admin/staff' => [AdminController::class, 'staff'],
     ],
     'POST' => [
         '/cart/add' => [OrderController::class, 'addToCart'],
@@ -62,5 +63,8 @@ return [
         '/admin/inventory/{id}/update' => [AdminController::class, 'updateInventory'],
         '/admin/suppliers' => [AdminController::class, 'storeSupplier'],
         '/admin/settings' => [AdminController::class, 'updateSettings'],
+        '/admin/staff' => [AdminController::class, 'storeStaff'],
+        '/admin/staff/attendance' => [AdminController::class, 'storeAttendance'],
+        '/admin/staff/payments' => [AdminController::class, 'storeStaffPayment'],
     ],
 ];
