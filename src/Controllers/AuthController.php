@@ -6,7 +6,9 @@ namespace App\Controllers;
 use App\Models\User;
 
 use function App\Helpers\clean_string;
+use function App\Helpers\app_url;
 use function App\Helpers\current_user;
+use function App\Helpers\env;
 use function App\Helpers\flash;
 use function App\Helpers\rate_limit;
 use function App\Helpers\redirect;
@@ -14,6 +16,7 @@ use function App\Helpers\valid_phone;
 use function App\Helpers\verify_csrf_or_fail;
 use function App\Helpers\rotate_csrf_token;
 use function App\Helpers\view;
+use function App\Helpers\log_event;
 
 final class AuthController
 {
@@ -160,20 +163,67 @@ final class AuthController
     public function forgotPassword(): void
     {
         verify_csrf_or_fail();
-        flash('info', 'Password reset isn’t available yet. Please contact us directly to reset your password.');
+        if (!rate_limit('password-reset', 5, 600)) {
+            flash('info', 'If an account exists for that email, a recovery link will be sent shortly.');
+            redirect('/auth/login');
+        }
+
+        $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+        if ($email) {
+            $user = User::findByEmail((string) $email);
+            if ($user !== null) {
+                $token = bin2hex(random_bytes(32));
+                User::createPasswordResetToken((int) $user['id'], hash('sha256', $token), date('Y-m-d H:i:s', time() + 3600));
+                $resetUrl = app_url('/auth/reset-password?token=' . rawurlencode($token));
+                $this->sendPasswordResetEmail((string) $user['email'], $resetUrl);
+            }
+        }
+
+        flash('info', 'If an account exists for that email, a recovery link will be sent shortly.');
         redirect('/auth/login');
     }
 
     public function resetPasswordForm(): void
     {
-        view('reset-password', ['title' => "Reset Password - Cheryne's"]);
+        view('reset-password', ['title' => "Reset Password - Cheryne's", 'token' => (string) ($_GET['token'] ?? '')]);
     }
 
     public function resetPassword(): void
     {
         verify_csrf_or_fail();
-        flash('info', 'Password reset isn’t available yet. Please contact us directly to reset your password.');
+        $token = trim((string) ($_POST['token'] ?? ''));
+        $password = (string) ($_POST['password'] ?? '');
+        if (!preg_match('/^[a-f0-9]{64}$/', $token) || !$this->strongPassword($password)) {
+            flash('danger', 'The reset link is invalid or the password does not meet the requirements.');
+            redirect('/auth/forgot-password');
+        }
+
+        $userId = User::consumePasswordResetToken(hash('sha256', $token));
+        if ($userId === null || !User::updatePassword($userId, $password)) {
+            flash('danger', 'The reset link is invalid or has expired.');
+            redirect('/auth/forgot-password');
+        }
+
+        flash('success', 'Your password has been updated. Please sign in.');
         redirect('/auth/login');
+    }
+
+    private function sendPasswordResetEmail(string $recipient, string $resetUrl): void
+    {
+        $subject = "Reset your Cheryne's password";
+        $message = "Use this link to reset your password (expires in 1 hour):\n\n" . $resetUrl . "\n\nIf you did not request this, you can ignore this email.";
+        $from = (string) env('MAIL_FROM', 'no-reply@localhost');
+        $enabled = filter_var(env('MAIL_ENABLED', false), FILTER_VALIDATE_BOOLEAN);
+
+        if (!$enabled) {
+            log_event('info', 'Password reset link generated for local development', ['email' => $recipient, 'reset_url' => $resetUrl]);
+            return;
+        }
+
+        $headers = "From: {$from}\r\nContent-Type: text/plain; charset=UTF-8\r\n";
+        if (!mail($recipient, $subject, $message, $headers)) {
+            log_event('error', 'Password reset email delivery failed', ['email' => $recipient]);
+        }
     }
 
     private function strongPassword(string $password): bool

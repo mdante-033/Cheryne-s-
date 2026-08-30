@@ -124,6 +124,15 @@ CREATE TABLE IF NOT EXISTS admin_settings (
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash CHAR(64) NOT NULL UNIQUE,
+    expires_at TIMESTAMP NOT NULL,
+    used_at TIMESTAMP NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS staff (
     id SERIAL PRIMARY KEY,
     name VARCHAR(120) NOT NULL,
@@ -167,6 +176,7 @@ CREATE INDEX IF NOT EXISTS idx_rate_limits_scope_ip ON rate_limits(scope, ip, cr
 CREATE INDEX IF NOT EXISTS idx_logs_created_at ON logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_logs_level ON logs(level);
 CREATE INDEX IF NOT EXISTS idx_inventory_supplier ON inventory(supplier_id);
+CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_hash ON password_reset_tokens(token_hash);
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON attendance(work_date);
 CREATE INDEX IF NOT EXISTS idx_staff_payments_paid_on ON staff_payments(paid_on);
 
