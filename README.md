@@ -70,9 +70,35 @@ Generated pieces:
 Development admin:
 
 - Email: `admin@cherynes.com`
-- Password:`Your admin password`
+- Password: set your own local password; the seeded hash has no recorded plaintext.
 
-Change this immediately in production. The seed hash is for local development only.
+To set or rotate the development admin password, generate a hash and update the database:
+
+```powershell
+php -r "echo password_hash('YourNewPassword123!', PASSWORD_BCRYPT), PHP_EOL;"
+psql -U your_db_user -d cherynes -c "UPDATE users SET password_hash = 'PASTE_HASH_HERE' WHERE email = 'admin@cherynes.com';"
+```
+
+Replace `YourNewPassword123!` with a private strong password and never commit the generated hash or password to the repository. Change this immediately in production; the seed hash is for local development only.
+
+### Rotate the PostgreSQL password
+
+The database password must not be placed in shell history or committed to Git. Use PostgreSQL's interactive password prompt:
+
+```powershell
+psql -U postgres -d postgres
+\password postgres
+\q
+```
+
+Then update the local `.env` file with the same password:
+
+```env
+DB_USER=postgres
+DB_PASS=your_new_private_password
+```
+
+Restart the PHP server after changing `.env`, then run `composer test`.
 
 ## Docker setup
 
